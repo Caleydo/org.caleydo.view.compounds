@@ -28,9 +28,9 @@
           target: setup                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="setup">
-		<input addproperty="id" message="Enter your plugin id:" defaultvalue="sample" />
-		<input addproperty="name" message="Enter your plugin name:" defaultvalue="Sample" />
-		<input addproperty="author" message="Enter your plugin name:" defaultvalue="${user.name}" />
+		<input addproperty="id" message="Enter your plugin id (no spaces):" defaultvalue="sample" />
+		<input addproperty="name" message="Enter your plugin name (no spaces):" defaultvalue="Sample" />
+		<input addproperty="author" message="Enter your name:" defaultvalue="${user.name}" />
 		<input addproperty="type" message="Should the plugin support a single or a composite multi view?" defaultvalue="single" validargs="single,multi" />
 		<condition property="type.camel" value="Single" else="Multi">
 			<equals arg1="${type}" arg2="single" />
