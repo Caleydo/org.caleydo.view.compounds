@@ -15,14 +15,14 @@ import org.caleydo.view.template.internal.serial.SerializedTemplateSingleView;
  * @author AUTHOR
  *
  */
-public class RcpGLTemplateView extends ARcpGLElementViewPart {
+public class TemplateViewPart extends ARcpGLElementViewPart {
 
-	public RcpGLTemplateView() {
+	public TemplateViewPart() {
 		super(SerializedTemplateSingleView.class);
 	}
 
 	@Override
 	protected AGLElementView createView(IGLCanvas canvas) {
-		return new GLTemplateSingleView(glCanvas);
+		return new TemplateSingleView(glCanvas);
 	}
 }

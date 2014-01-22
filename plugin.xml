@@ -6,7 +6,7 @@
       <view
             allowMultiple="true"
             category="org.caleydo.core.views"
-            class="org.caleydo.view.template.internal.RcpGLTemplateView"
+            class="org.caleydo.view.template.internal.TemplateViewPart"
             icon="resources/icons/icon.png"
             id="org.caleydo.view.template"
             name="Template">

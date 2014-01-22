@@ -21,13 +21,13 @@ import org.caleydo.view.template.ui.TemplateElement;
  * @author AUTHOR
  *
  */
-public class GLTemplateSingleView extends ASingleTablePerspectiveElementView {
+public class TemplateSingleView extends ASingleTablePerspectiveElementView {
 	public static final String VIEW_TYPE = "org.caleydo.view.template";
 	public static final String VIEW_NAME = "Template";
 
-	private static final Logger log = Logger.create(GLTemplateSingleView.class);
+	private static final Logger log = Logger.create(TemplateSingleView.class);
 
-	public GLTemplateSingleView(IGLCanvas glCanvas) {
+	public TemplateSingleView(IGLCanvas glCanvas) {
 		super(glCanvas, VIEW_TYPE, VIEW_NAME);
 	}
 

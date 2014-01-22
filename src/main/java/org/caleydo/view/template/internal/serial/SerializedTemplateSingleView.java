@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.caleydo.core.serialize.ASerializedSingleTablePerspectiveBasedView;
 import org.caleydo.core.view.ISingleTablePerspectiveBasedView;
-import org.caleydo.view.template.internal.GLTemplateSingleView;
+import org.caleydo.view.template.internal.TemplateSingleView;
 
 /**
  *
@@ -33,6 +33,6 @@ public class SerializedTemplateSingleView extends ASerializedSingleTablePerspect
 
 	@Override
 	public String getViewType() {
-		return GLTemplateSingleView.VIEW_TYPE;
+		return TemplateSingleView.VIEW_TYPE;
 	}
 }

@@ -27,13 +27,13 @@ import org.caleydo.view.template.ui.TemplateMultiElement;
  * @author AUTHOR
  *
  */
-public class GLTemplateMultiView extends AMultiTablePerspectiveElementView {
+public class TemplateMultiView extends AMultiTablePerspectiveElementView {
 	public static final String VIEW_TYPE = "org.caleydo.view.template";
 	public static final String VIEW_NAME = "Template";
 
-	private static final Logger log = Logger.create(GLTemplateMultiView.class);
+	private static final Logger log = Logger.create(TemplateMultiView.class);
 
-	public GLTemplateMultiView(IGLCanvas glCanvas) {
+	public TemplateMultiView(IGLCanvas glCanvas) {
 		super(glCanvas, VIEW_TYPE, VIEW_NAME);
 	}
 

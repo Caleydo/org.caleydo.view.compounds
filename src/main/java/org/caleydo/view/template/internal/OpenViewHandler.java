@@ -15,6 +15,6 @@ import org.caleydo.core.gui.command.AOpenViewHandler;
  */
 public class OpenViewHandler extends AOpenViewHandler {
 	public OpenViewHandler() {
-		super(GLTemplateSingleView.VIEW_TYPE, SINGLE);
+		super(TemplateSingleView.VIEW_TYPE, SINGLE);
 	}
 }
