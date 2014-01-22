@@ -5,9 +5,6 @@
  ******************************************************************************/
 package org.caleydo.view.template.internal;
 
-import org.caleydo.data.loader.ResourceLoader;
-import org.caleydo.data.loader.ResourceLocators;
-import org.caleydo.data.loader.ResourceLocators.IResourceLocator;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
@@ -19,13 +16,6 @@ import org.osgi.framework.BundleContext;
 public class Activator extends Plugin {
 	// The shared instance
 	private static Activator plugin;
-
-	/**
-	 * the resource locator of this plugin to find icons,...
-	 */
-	private static IResourceLocator resourceLocator = ResourceLocators.chain(
-			ResourceLocators.classLoader(Activator.class.getClassLoader()), ResourceLocators.DATA_CLASSLOADER,
-			ResourceLocators.FILE);
 
 	@Override
 	public void start(BundleContext context) throws Exception {
@@ -46,19 +36,5 @@ public class Activator extends Plugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
-	}
-
-	/**
-	 * @return
-	 */
-	public static ResourceLoader getResourceLoader() {
-		return new ResourceLoader(resourceLocator);
-	}
-
-	/**
-	 * @return the resourceLocator, see {@link #resourceLocator}
-	 */
-	public static IResourceLocator getResourceLocator() {
-		return resourceLocator;
 	}
 }
