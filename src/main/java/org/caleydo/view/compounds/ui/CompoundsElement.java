@@ -7,22 +7,16 @@ package org.caleydo.view.compounds.ui;
 
 import gleem.linalg.Vec2f;
 
-import org.caleydo.core.data.perspective.table.TablePerspective;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.core.view.opengl.layout2.view.ASingleTablePerspectiveElement;
-import org.caleydo.view.compounds.internal.Resources;
+import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
 
 /**
- * element of this view holding a {@link TablePerspective}
+ * element of this view
  *
  * @author Hendrik Strobelt
  *
  */
-public class CompoundsElement extends ASingleTablePerspectiveElement {
-	public CompoundsElement(TablePerspective tablePerspective) {
-		super(tablePerspective);
-		setRenderer(GLRenderers.fillImage(Resources.ICON));
-	}
+public class CompoundsElement extends GLElement implements IHasMinSize {
 
 	@Override
 	public Vec2f getMinSize() {

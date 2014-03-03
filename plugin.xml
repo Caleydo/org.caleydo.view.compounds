@@ -2,45 +2,12 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.ui.views">
-      <view
-            allowMultiple="false"
-            category="org.caleydo.core.views"
-            class="org.caleydo.view.compounds.internal.CompoundsViewPart"
+         point="org.caleydo.ui.GLElementFactory">
+      <factory
+            factory="org.caleydo.view.compounds.internal.CompoundsElementFactory"
             icon="resources/icons/icon.png"
-            id="org.caleydo.view.compounds"
-            name="Compounds">
-      </view>
-   </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="menu:org.caleydo.menu.view.visualization">
-         <command
-               commandId="org.caleydo.view.compounds.command.open"
-               icon="resources/icons/icon.png"
-               style="push">
-         </command>
-      </menuContribution>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="org.caleydo.view.compounds.internal.OpenViewHandler"
-            id="org.caleydo.view.compounds.command.open"
-            name="Compounds">
-      </command>
-   </extension>
-   <extension
-         point="org.caleydo.core.data.datadomain.ViewDataDomainAssociation">
-      <association
-            view="org.caleydo.view.compounds">
-         <dataDomain
-               type="org.caleydo.datadomain.genetic">
-         </dataDomain>
-         <dataDomain
-               type="org.caleydo.datadomain.generic">
-         </dataDomain>
-      </association>
+            name="Compound Structure Viewer"
+            scaleType="fix">
+      </factory>
    </extension>
 </plugin>
