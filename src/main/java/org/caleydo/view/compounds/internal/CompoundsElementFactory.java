@@ -6,6 +6,7 @@
 package org.caleydo.view.compounds.internal;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
 import org.caleydo.view.compounds.ui.CompoundsElement;
@@ -29,7 +30,7 @@ public class CompoundsElementFactory implements IGLElementFactory {
 
 	@Override
 	public GLElement create(GLElementFactoryContext context) {
-		return new CompoundsElement();
+		return new CompoundsElement(context.get("smile", String.class, GLLayoutDatas.<String> throwInvalidException()));
 	}
 
 }
