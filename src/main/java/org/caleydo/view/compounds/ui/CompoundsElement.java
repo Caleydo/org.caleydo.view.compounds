@@ -13,14 +13,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
+import org.caleydo.core.view.opengl.layout2.GLSandBox;
+import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
 import org.openscience.cdk.DefaultChemObjectBuilder;
-import org.openscience.cdk.Molecule;
 import org.openscience.cdk.exception.InvalidSmilesException;
 import org.openscience.cdk.interfaces.IAtomContainer;
-import org.openscience.cdk.interfaces.IMolecule;
 import org.openscience.cdk.layout.StructureDiagramGenerator;
 import org.openscience.cdk.renderer.AtomContainerRenderer;
 import org.openscience.cdk.renderer.font.AWTFontManager;
@@ -30,7 +31,6 @@ import org.openscience.cdk.renderer.generators.BasicSceneGenerator;
 import org.openscience.cdk.renderer.generators.IGenerator;
 import org.openscience.cdk.renderer.visitor.AWTDrawVisitor;
 import org.openscience.cdk.smiles.SmilesParser;
-import org.openscience.cdk.templates.MoleculeFactory;
 
 import com.jogamp.opengl.util.awt.TextureRenderer;
 
@@ -41,38 +41,70 @@ import com.jogamp.opengl.util.awt.TextureRenderer;
  *
  */
 public class CompoundsElement extends GLElement implements IHasMinSize {
+	private static final Logger log = Logger.create(CompoundsElement.class);
 
 	private final String smile;
+	private final IAtomContainer molecul;
+	private final AtomContainerRenderer renderer;
+
 	private TextureRenderer textureRenderer;
-	
-	private List generators = new ArrayList();
-	private String currentSmile = "";
-	private AtomContainerRenderer actualRenderer =  null;
-	private IMolecule actualMolecul = null;
-	private int actualWidth = 1;
-	private int actualHeight = 1;
 
 	/**
 	 * @param string
 	 */
-	@SuppressWarnings("unchecked")
 	public CompoundsElement(String smile) {
 		this.smile = smile;
-		textureRenderer = new TextureRenderer(800, 800, false);
-		Graphics2D graphics = textureRenderer.createGraphics();
-		graphics.drawLine(10, 10, 300, 300);
-		graphics.dispose();
-		
+
 		// init moleculeRendering steps
 		// generators make the image elements
+		List<IGenerator<IAtomContainer>> generators = new ArrayList<>();
 		generators.add(new BasicSceneGenerator());
 		generators.add(new BasicBondGenerator());
 		generators.add(new BasicAtomGenerator());
 		// the renderer needs to have a toolkit-specific font manager
-		actualRenderer = new AtomContainerRenderer(
-				generators, new AWTFontManager());
-		
-		
+		renderer = new AtomContainerRenderer(generators, new AWTFontManager());
+
+		this.molecul = toMolecul(smile);
+	}
+
+	@Override
+	protected void init(IGLElementContext context) {
+		textureRenderer = new TextureRenderer(800, 800, false);
+		// Graphics2D graphics = textureRenderer.createGraphics();
+		// graphics.drawLine(10, 10, 300, 300);
+		// graphics.dispose();
+		super.init(context);
+	}
+
+	@Override
+	protected void takeDown() {
+		if (this.textureRenderer != null)
+			textureRenderer.dispose();
+		textureRenderer = null;
+		super.takeDown();
+	}
+
+	/**
+	 * @param smile2
+	 * @return
+	 */
+	private static IAtomContainer toMolecul(String smile) {
+		IAtomContainer molecule;
+		try {
+			molecule = new SmilesParser(DefaultChemObjectBuilder.getInstance()).parseSmiles(smile);
+
+			StructureDiagramGenerator sdg = new StructureDiagramGenerator();
+			sdg.setMolecule(molecule);
+			try {
+				sdg.generateCoordinates();
+			} catch (Exception ex) {
+				log.warn("can't generate coordinates for " + smile, ex);
+			}
+			return sdg.getMolecule();
+		} catch (InvalidSmilesException e) {
+			log.error("invalid smile string: " + smile, e);
+		}
+		return null;
 	}
 
 	@Override
@@ -81,84 +113,46 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 	}
 
 	@Override
+	protected void layoutImpl(int deltaTimeMs) {
+		// we have a new size
+		renderSmiles((int) getSize().x(), (int) getSize().y());
+		super.layoutImpl(deltaTimeMs);
+	}
+
+	@Override
 	protected void renderImpl(GLGraphics g, float w, float h) {
 		super.renderImpl(g, w, h);
 
 		g.color(Color.WHITE).fillRect(0, 0, w, h);
-		
-		renderSmiles(smile,w,h);
+
 		g.fillImage(textureRenderer.getTexture(), 0,0, w, h);
 //		float size = (w>h)?h:w;
 //		g.fillImage(textureRenderer.getTexture(), (w-size)/2, (h-size)/2, size, size);
-		
-		
-	}
-	
-	private void renderSmiles(String smileString, float w, float h) {
-		try{
-			int WIDTH = (int) w;
-			int HEIGHT = (int) h;
-			
 
-			// only update structure if smiles string changed
-			if (!currentSmile.equals(smileString)){
-				actualMolecul = MoleculeFactory.makeCyclobutane();
 
-				Molecule molecule = (Molecule) new SmilesParser(
-						DefaultChemObjectBuilder.getInstance())
-						.parseSmiles(smileString);
-
-				StructureDiagramGenerator sdg = new StructureDiagramGenerator();
-				sdg.setMolecule(molecule);
-				try {
-					sdg.generateCoordinates();
-				} catch (Exception ex) {
-
-				}
-				actualMolecul = sdg.getMolecule();
-				
-			}
-			
-			// only update texture if something changed
-			if (!currentSmile.equals(smileString) || actualHeight!=HEIGHT || actualWidth!=WIDTH) {
-				
-				actualHeight= HEIGHT;
-				actualWidth = WIDTH;
-				currentSmile = smileString;
-				
-				// the draw area and the image should be the same size
-				Rectangle drawArea = new Rectangle(WIDTH, HEIGHT);
-
-				// center molecule
-				actualRenderer.setup(actualMolecul, drawArea);
-
-				// zoom to fit in rectangle..  
-				Rectangle diagramBounds = actualRenderer.calculateDiagramBounds(actualMolecul);
-				actualRenderer.setZoomToFit(WIDTH, HEIGHT, diagramBounds.width,
-						diagramBounds.height);
-				
-				// and render it in a new texture
-				textureRenderer = new TextureRenderer(WIDTH, HEIGHT, false);
-				Graphics2D graphics = textureRenderer.createGraphics();
-				graphics.setColor(java.awt.Color.WHITE);
-		        graphics.fillRect(0, 0, WIDTH, HEIGHT);
-				actualRenderer.paint(actualMolecul, new AWTDrawVisitor(graphics));
-				graphics.dispose();
-
-			}
-			
-			
-			
-			
-			
-		} catch (InvalidSmilesException ex) {
-			// Logger.getLogger(ImageRenderer.class.getName()).log(Level.SEVERE,
-			// null, ex);
-		}
-	      
 	}
 
-	
-	
-	
+	private void renderSmiles(int width, int height) {
+		// the draw area and the image should be the same size
+		Rectangle drawArea = new Rectangle(width, height);
+
+		// center molecule
+		renderer.setup(molecul, drawArea);
+
+		// zoom to fit in rectangle..
+		Rectangle diagramBounds = renderer.calculateDiagramBounds(molecul);
+		renderer.setZoomToFit(width, height, diagramBounds.width, diagramBounds.height);
+
+		// and render it in a new texture
+		textureRenderer.setSize(width, height);
+		Graphics2D graphics = textureRenderer.createGraphics();
+		graphics.setColor(java.awt.Color.WHITE);
+		graphics.fillRect(0, 0, width, height);
+		renderer.paint(molecul, new AWTDrawVisitor(graphics));
+		graphics.dispose();
+	}
+
+	public static void main(String[] args) {
+		GLSandBox.main(args, new CompoundsElement("CN2C(=O)N(C)C(=O)C1=C2N=CN1C"));
+	}
 }
