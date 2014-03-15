@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.caleydo.core.data.collection.EDimension;
+import org.caleydo.core.util.collection.Pair.ComparablePair;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -66,18 +67,19 @@ public class MultiCompoundsList extends GLElementContainer implements IHasMinSiz
 //	 }
 	
 	protected class ScrollableCompoundsList extends GLElementContainer{
-		private  List<String> smilesList;
+		private  List<ComparablePair<String, String>> smilesList;
 
-		public ScrollableCompoundsList(final List<String> smilesList) {
+		public ScrollableCompoundsList(final List<ComparablePair<String, String>> smilesList) {
 			super();
 			this.smilesList = smilesList;
 			setLayout(new GLSizeRestrictiveFlowLayout2(false, 5, GLPadding.ZERO));
 			setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this,
 					5, GLPadding.ZERO));
 			
-			for (String smile : this.smilesList) {
+			for (ComparablePair<String, String> smile : this.smilesList) {
 //				add(new CompoundsElement(smile,400,400));
-				add(new CompoundsElement(smile));
+				add(new CompoundsElement(smile.getSecond(), smile.getFirst()));
+//				add(new CompoundsElement(smile.getSecond(), smile.getFirst(),300,300));
 			}
 			
 		}
@@ -118,18 +120,12 @@ public class MultiCompoundsList extends GLElementContainer implements IHasMinSiz
 		}
 		
 		
-		
-		
-		
-		
-		
-		
 	}
 	
 	
 	
-	
-	public MultiCompoundsList(final List<String> smilesList) {
+	//List<ComparablePair<String, String>> smiles
+	public MultiCompoundsList(final List<ComparablePair<String, String>> smilesList) {
 		super();
 //		setLayout(new GLSizeRestrictiveFlowLayout2(false, 1, GLPadding.ZERO));
 		setLayout(GLLayouts.LAYERS);
@@ -156,7 +152,7 @@ public class MultiCompoundsList extends GLElementContainer implements IHasMinSiz
 	
 	@Override
 	public Vec2f getMinSize() {
-		return new Vec2f(400,400);
+		return new Vec2f(300,300);
 	}
 	
 
@@ -167,14 +163,13 @@ public class MultiCompoundsList extends GLElementContainer implements IHasMinSiz
 	
 	public static void main(String[] args) {
 		// the tough one:
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl");
-		list.add("COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl");
-		list.add("COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl");
-		list.add("COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl");
-		list.add("COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl");
-		list.add("COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl");
-		list.add("COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl");
+		ArrayList<ComparablePair<String, String> > list = new ArrayList<ComparablePair<String, String> >();
+		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
 		
 		GLSandBox.main(args, new MultiCompoundsList(list));
 

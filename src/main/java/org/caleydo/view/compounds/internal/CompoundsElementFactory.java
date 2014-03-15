@@ -13,6 +13,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
 import org.caleydo.view.compounds.ui.CompoundsElement;
+import org.caleydo.view.compounds.ui.MultiCompoundsList;
 
 /**
  * @author Samuel Gratzl
@@ -37,7 +38,7 @@ public class CompoundsElementFactory implements IGLElementFactory {
 		@SuppressWarnings("unchecked")
 		List<ComparablePair<String, String>> smiles = context.get("smiles", List.class,
 				GLLayoutDatas.<List> throwInvalidException());
-		return new CompoundsElement(smiles);
+		return new MultiCompoundsList(smiles);
 	}
 
 }

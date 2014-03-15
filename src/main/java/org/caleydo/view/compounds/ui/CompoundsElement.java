@@ -12,8 +12,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.caleydo.core.util.collection.Pair;
-import org.caleydo.core.util.collection.Pair.ComparablePair;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -24,19 +22,22 @@ import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize
 import org.openscience.cdk.DefaultChemObjectBuilder;
 import org.openscience.cdk.exception.InvalidSmilesException;
 import org.openscience.cdk.graph.ConnectivityChecker;
+import org.openscience.cdk.interfaces.IAtom;
 import org.openscience.cdk.interfaces.IAtomContainer;
 import org.openscience.cdk.interfaces.IAtomContainerSet;
 import org.openscience.cdk.layout.StructureDiagramGenerator;
 import org.openscience.cdk.renderer.AtomContainerRenderer;
+import org.openscience.cdk.renderer.color.IAtomColorer;
 import org.openscience.cdk.renderer.font.AWTFontManager;
 import org.openscience.cdk.renderer.generators.BasicAtomGenerator;
 import org.openscience.cdk.renderer.generators.BasicBondGenerator;
 import org.openscience.cdk.renderer.generators.BasicSceneGenerator;
 import org.openscience.cdk.renderer.generators.IGenerator;
+import org.openscience.cdk.renderer.generators.IGeneratorParameter;
+import org.openscience.cdk.renderer.generators.parameter.AbstractGeneratorParameter;
 import org.openscience.cdk.renderer.visitor.AWTDrawVisitor;
 import org.openscience.cdk.smiles.SmilesParser;
 
-import com.google.common.collect.Lists;
 import com.jogamp.opengl.util.awt.TextureRenderer;
 
 /**
@@ -56,34 +57,83 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 	private boolean subComponentWarning = false;
 
+	private String name;
+
 	private static class MoleluleConversionFeedback {
 		public boolean isSubComponent = false;
 
 	}
 
 	
-	public CompoundsElement(String smile, float sizeX, float sizeY) {
-		this(smile);
+	public CompoundsElement(String smile, String name, float sizeX, float sizeY) {
+		this(smile, name);
 		setSize(sizeX, sizeY);
-		System.out.println("xxx"+(int) getSize().x());
 	}
+	
+	
+	public CompoundsElement(String smile){
+		this(smile,null);
+	}
+	
+	private static class IndividualColors implements IAtomColorer {
+
+		private static final java.awt.Color nColor = new java.awt.Color(43,140,190); 
+		private static final java.awt.Color oColor = new java.awt.Color(227,74,51);
+		private static final java.awt.Color clColor = new java.awt.Color(116,196,118);
+		
+		public IndividualColors() {
+			// TODO Auto-generated constructor stub
+		}
+		
+		@Override
+		public java.awt.Color getAtomColor(IAtom atom) {
+			System.out.println(atom.getAtomTypeName());
+			if (atom.getAtomTypeName().startsWith("N.")) return nColor; 
+			else if (atom.getAtomTypeName().startsWith("O.")) return oColor;
+			else if (atom.getAtomTypeName().startsWith("Cl")) return clColor;
+			
+			return java.awt.Color.DARK_GRAY;
+		}
+
+		@Override
+		public java.awt.Color getAtomColor(IAtom atom,
+				java.awt.Color defaultColor) {
+			// TODO Auto-generated method stub
+			return getAtomColor(atom);
+		}
+		
+	}
+	
+	public static class AtomColor extends
+    AbstractGeneratorParameter<Color> {
+    	/** Returns the default value.
+    	 * @return {@link Color}.BLACK */
+        public Color getDefault() {
+            return Color.BLACK;
+        }
+    }
 	
 	
 	/**
 	 * @param string
 	 */
-	public CompoundsElement(List<ComparablePair<String, String>> smiles) {
-		this.smile = smiles.get(0).getSecond();
+	public CompoundsElement(String smile, String name) {
+		this.smile = smile;
+		this.name = name;
 
 		// init moleculeRendering steps
 		// generators make the image elements
 		List<IGenerator<IAtomContainer>> generators = new ArrayList<>();
 		generators.add(new BasicSceneGenerator());
 		generators.add(new BasicBondGenerator());
-		generators.add(new BasicAtomGenerator());
+		BasicAtomGenerator basicAtomGenerator = new BasicAtomGenerator();
+		((IGeneratorParameter<IAtomColorer>) basicAtomGenerator.getParameters().get(1)).setValue(new IndividualColors());;
+		
+		generators.add(basicAtomGenerator);
 		// the renderer needs to have a toolkit-specific font manager
 		renderer = new AtomContainerRenderer(generators, new AWTFontManager());
-
+		
+				
 		// when rendering the molecule add a warning, when only the largest
 		// subcomponent is rendered.
 		MoleluleConversionFeedback moleluleConversionFeedback = new MoleluleConversionFeedback();
@@ -173,12 +223,11 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 	@Override
 	public Vec2f getMinSize() {
-		return new Vec2f(400,400);
+		return new Vec2f(300,300);
 	}
 
 	@Override
 	protected void layoutImpl(int deltaTimeMs) {
-//		System.out.println((int) getSize().x());
 		// we have a new size
 		renderSmiles((int) getSize().x(), (int) getSize().y());
 		super.layoutImpl(deltaTimeMs);
@@ -186,18 +235,22 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 	@Override
 	protected void renderImpl(GLGraphics g, float w, float h) {
-		System.out.println(w);
 		super.renderImpl(g, w, h);
 
 		g.color(Color.WHITE).fillRect(0, 0, w, h);
 
-		g.fillImage(textureRenderer.getTexture(), 0, 0, w*2, h*2);
+		g.fillImage(textureRenderer.getTexture(), 0, 0, w, h);
 
+		if (this.name!=null){
+			g.drawText(this.name,
+					20, 2, 200, 15);	
+		}
+		
 		if (subComponentWarning) {
 
 			g.textColor(Color.RED);
 			g.drawText("disconnected structure:\nshow largest subcomponent",
-					20, 2, 200, 30);
+					20, 17, 200, 30);
 			g.textColor(Color.BLACK);
 		}
 
@@ -208,12 +261,10 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 	}
 
 	private void renderSmiles(int width, int height) {
-		System.out.println("smile: " + smile);
+		
 
 		// the draw area and the image should be the same size
 		Rectangle drawArea = new Rectangle(width, height);
-
-		System.out.println(molecul);
 
 		// center molecule
 		renderer.setup(molecul, drawArea);
@@ -235,7 +286,8 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 	public static void main(String[] args) {
 		GLSandBox.main(
 				args,
-				new CompoundsElement(Lists.newArrayList(Pair.<String, String> make("CompoundName",
-						"CN2C(=O)N(C)C(=O)C1=C2N=CN1C"))));
+				new CompoundsElement("CN2C(=O)N(C)C(=O)C1=C2N=CN1CCl"));
+//				new CompoundsElement(Lists.newArrayList(Pair.<String, String> make("CompoundName",
+//						"CN2C(=O)N(C)C(=O)C1=C2N=CN1C"))));
 	}
 }
