@@ -5,6 +5,9 @@
  *******************************************************************************/
 package org.caleydo.view.compounds.internal;
 
+import java.util.List;
+
+import org.caleydo.core.util.collection.Pair.ComparablePair;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
@@ -19,18 +22,22 @@ public class CompoundsElementFactory implements IGLElementFactory {
 
 	@Override
 	public String getId() {
-		return "smile";
+		return "smiles";
 	}
 
 
 	@Override
 	public boolean apply(GLElementFactoryContext context) {
-		return context.get("smile", String.class, null) != null;
+		return context.get("smiles", List.class, null) != null;
 	}
 
 	@Override
 	public GLElement create(GLElementFactoryContext context) {
-		return new CompoundsElement(context.get("smile", String.class, GLLayoutDatas.<String> throwInvalidException()));
+
+		@SuppressWarnings("unchecked")
+		List<ComparablePair<String, String>> smiles = context.get("smiles", List.class,
+				GLLayoutDatas.<List> throwInvalidException());
+		return new CompoundsElement(smiles);
 	}
 
 }

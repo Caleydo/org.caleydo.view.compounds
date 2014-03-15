@@ -12,6 +12,8 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.caleydo.core.util.collection.Pair;
+import org.caleydo.core.util.collection.Pair.ComparablePair;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -34,6 +36,7 @@ import org.openscience.cdk.renderer.generators.IGenerator;
 import org.openscience.cdk.renderer.visitor.AWTDrawVisitor;
 import org.openscience.cdk.smiles.SmilesParser;
 
+import com.google.common.collect.Lists;
 import com.jogamp.opengl.util.awt.TextureRenderer;
 
 /**
@@ -69,8 +72,8 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 	/**
 	 * @param string
 	 */
-	public CompoundsElement(String smile) {
-		this.smile = smile;
+	public CompoundsElement(List<ComparablePair<String, String>> smiles) {
+		this.smile = smiles.get(0).getSecond();
 
 		// init moleculeRendering steps
 		// generators make the image elements
@@ -230,11 +233,9 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 	}
 
 	public static void main(String[] args) {
-		// the tough one:
-		GLSandBox.main(args, new CompoundsElement(
-				"COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
-
-		// GLSandBox.main(args, new
-		// CompoundsElement("CN2C(=O)N(C)C(=O)C1=C2N=CN1C"));
+		GLSandBox.main(
+				args,
+				new CompoundsElement(Lists.newArrayList(Pair.<String, String> make("CompoundName",
+						"CN2C(=O)N(C)C(=O)C1=C2N=CN1C"))));
 	}
 }
