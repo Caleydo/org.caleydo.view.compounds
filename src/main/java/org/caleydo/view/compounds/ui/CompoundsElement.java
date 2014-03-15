@@ -23,7 +23,9 @@ import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
 import org.openscience.cdk.DefaultChemObjectBuilder;
 import org.openscience.cdk.exception.InvalidSmilesException;
+import org.openscience.cdk.graph.ConnectivityChecker;
 import org.openscience.cdk.interfaces.IAtomContainer;
+import org.openscience.cdk.interfaces.IAtomContainerSet;
 import org.openscience.cdk.layout.StructureDiagramGenerator;
 import org.openscience.cdk.renderer.AtomContainerRenderer;
 import org.openscience.cdk.renderer.font.AWTFontManager;
@@ -39,9 +41,9 @@ import com.jogamp.opengl.util.awt.TextureRenderer;
 
 /**
  * element of this view
- *
+ * 
  * @author Hendrik Strobelt
- *
+ * 
  */
 public class CompoundsElement extends GLElement implements IHasMinSize {
 	private static final Logger log = Logger.create(CompoundsElement.class);
@@ -51,6 +53,12 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 	private final AtomContainerRenderer renderer;
 
 	private TextureRenderer textureRenderer;
+
+	private boolean subComponentWarning = false;
+
+	private static class MoleluleConversionFeedback {
+		public boolean isSubComponent = false;
+	}
 
 	/**
 	 * @param string
@@ -67,7 +75,11 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 		// the renderer needs to have a toolkit-specific font manager
 		renderer = new AtomContainerRenderer(generators, new AWTFontManager());
 
-		this.molecul = toMolecul(smile);
+		// when rendering the molecule add a warning, when only the largest
+		// subcomponent is rendered.
+		MoleluleConversionFeedback moleluleConversionFeedback = new MoleluleConversionFeedback();
+		this.molecul = toMolecul(smile, moleluleConversionFeedback);
+		subComponentWarning = moleluleConversionFeedback.isSubComponent;
 	}
 
 	@Override
@@ -87,21 +99,61 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 		super.takeDown();
 	}
 
+	private static IAtomContainer toMolecul(String smile) {
+		return toMolecul(smile, null);
+	}
+
 	/**
 	 * @param smile2
 	 * @return
 	 */
-	private static IAtomContainer toMolecul(String smile) {
+	private static IAtomContainer toMolecul(String smile,
+			MoleluleConversionFeedback feedback) {
 		IAtomContainer molecule;
 		try {
-			molecule = new SmilesParser(DefaultChemObjectBuilder.getInstance()).parseSmiles(smile);
+			molecule = new SmilesParser(DefaultChemObjectBuilder.getInstance())
+					.parseSmiles(smile);
 
 			StructureDiagramGenerator sdg = new StructureDiagramGenerator();
 			sdg.setMolecule(molecule);
 			try {
-				sdg.generateCoordinates();
+				if (ConnectivityChecker.isConnected(molecule)) {
+					sdg.generateCoordinates();
+					if (feedback != null) {
+						feedback.isSubComponent = false;
+					}
+				} else {
+					// if the smiles contains unconnected components -- show
+					// only the largest connected component
+					IAtomContainerSet partitionIntoMolecules = ConnectivityChecker
+							.partitionIntoMolecules(molecule);
+					int containerCount = partitionIntoMolecules
+							.getAtomContainerCount();
+					int maxAtomCount = 0;
+					IAtomContainer largestMolecule = null;
+
+					for (int cc = 0; cc < containerCount; cc++) {
+						IAtomContainer actualMol = partitionIntoMolecules
+								.getAtomContainer(cc);
+						int molsize = actualMol.getAtomCount();
+						if (molsize > maxAtomCount) {
+							maxAtomCount = molsize;
+							largestMolecule = actualMol;
+						}
+					}
+					molecule = largestMolecule;
+					sdg.setMolecule(molecule);
+					sdg.generateCoordinates();
+
+					if (feedback != null) {
+						feedback.isSubComponent = true;
+					}
+
+				}
 			} catch (Exception ex) {
 				log.warn("can't generate coordinates for " + smile, ex);
+				System.out.println("COORD: " + ex);
+				System.exit(1);
 			}
 			return sdg.getMolecule();
 		} catch (InvalidSmilesException e) {
@@ -129,21 +181,36 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 		g.color(Color.WHITE).fillRect(0, 0, w, h);
 
 		g.fillImage(textureRenderer.getTexture(), 0, 0, w, h);
+
+		if (subComponentWarning) {
+
+			g.textColor(Color.RED);
+			g.drawText("disconnected structure:\nshow largest subcomponent",
+					20, 2, 200, 30);
+			g.textColor(Color.BLACK);
+		}
+
 		// float size = (w>h)?h:w;
-		// g.fillImage(textureRenderer.getTexture(), (w-size)/2, (h-size)/2, size, size);
+		// g.fillImage(textureRenderer.getTexture(), (w-size)/2, (h-size)/2,
+		// size, size);
 
 	}
 
 	private void renderSmiles(int width, int height) {
+		System.out.println("smile: " + smile);
+
 		// the draw area and the image should be the same size
 		Rectangle drawArea = new Rectangle(width, height);
+
+		System.out.println(molecul);
 
 		// center molecule
 		renderer.setup(molecul, drawArea);
 
 		// zoom to fit in rectangle..
 		Rectangle diagramBounds = renderer.calculateDiagramBounds(molecul);
-		renderer.setZoomToFit(width, height, diagramBounds.width, diagramBounds.height);
+		renderer.setZoomToFit(width, height, diagramBounds.width,
+				diagramBounds.height);
 
 		// and render it in a new texture
 		textureRenderer.setSize(width, height);
