@@ -55,8 +55,17 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 	private static class MoleluleConversionFeedback {
 		public boolean isSubComponent = false;
+
 	}
 
+	
+	public CompoundsElement(String smile, float sizeX, float sizeY) {
+		this(smile);
+		setSize(sizeX, sizeY);
+		System.out.println("xxx"+(int) getSize().x());
+	}
+	
+	
 	/**
 	 * @param string
 	 */
@@ -161,11 +170,12 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 	@Override
 	public Vec2f getMinSize() {
-		return new Vec2f(100, 100);
+		return new Vec2f(400,400);
 	}
 
 	@Override
 	protected void layoutImpl(int deltaTimeMs) {
+//		System.out.println((int) getSize().x());
 		// we have a new size
 		renderSmiles((int) getSize().x(), (int) getSize().y());
 		super.layoutImpl(deltaTimeMs);
@@ -173,11 +183,12 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 	@Override
 	protected void renderImpl(GLGraphics g, float w, float h) {
+		System.out.println(w);
 		super.renderImpl(g, w, h);
 
 		g.color(Color.WHITE).fillRect(0, 0, w, h);
 
-		g.fillImage(textureRenderer.getTexture(), 0, 0, w, h);
+		g.fillImage(textureRenderer.getTexture(), 0, 0, w*2, h*2);
 
 		if (subComponentWarning) {
 
