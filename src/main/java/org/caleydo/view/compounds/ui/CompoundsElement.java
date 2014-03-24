@@ -34,6 +34,7 @@ import org.openscience.cdk.renderer.generators.BasicBondGenerator;
 import org.openscience.cdk.renderer.generators.BasicSceneGenerator;
 import org.openscience.cdk.renderer.generators.IGenerator;
 import org.openscience.cdk.renderer.generators.IGeneratorParameter;
+import org.openscience.cdk.renderer.generators.RingGenerator;
 import org.openscience.cdk.renderer.generators.parameter.AbstractGeneratorParameter;
 import org.openscience.cdk.renderer.visitor.AWTDrawVisitor;
 import org.openscience.cdk.smiles.SmilesParser;
@@ -125,7 +126,8 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 		// generators make the image elements
 		List<IGenerator<IAtomContainer>> generators = new ArrayList<>();
 		generators.add(new BasicSceneGenerator());
-		generators.add(new BasicBondGenerator());
+//		generators.add(new BasicBondGenerator());
+		generators.add(new RingGenerator());
 		BasicAtomGenerator basicAtomGenerator = new BasicAtomGenerator();
 		((IGeneratorParameter<IAtomColorer>) basicAtomGenerator.getParameters().get(1)).setValue(new IndividualColors());;
 		
@@ -170,8 +172,10 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 			MoleluleConversionFeedback feedback) {
 		IAtomContainer molecule;
 		try {
-			molecule = new SmilesParser(DefaultChemObjectBuilder.getInstance())
-					.parseSmiles(smile);
+			SmilesParser smilesParser = new SmilesParser(DefaultChemObjectBuilder.getInstance());
+			smilesParser.setPreservingAromaticity(true);
+			System.out.println(smilesParser.isPreservingAromaticity());
+			molecule = smilesParser.parseSmiles(smile);
 
 			StructureDiagramGenerator sdg = new StructureDiagramGenerator();
 			sdg.setMolecule(molecule);
@@ -286,7 +290,9 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 	public static void main(String[] args) {
 		GLSandBox.main(
 				args,
-				new CompoundsElement("CN2C(=O)N(C)C(=O)C1=C2N=CN1CCl"));
+				new CompoundsElement("Clc3ccc(COC(CN1C=CN=C1)c2ccc(Cl)cc2Cl)c(Cl)c3"));
+//				new CompoundsElement("ClC1CCC(C(C1)Cl)COC(C2CCC(CC2Cl)Cl)CN3C=CN=C3"));
+//				new CompoundsElement("CN2C(=O)N(C)C(=O)C1=C2N=CN1CCl"));
 //				new CompoundsElement(Lists.newArrayList(Pair.<String, String> make("CompoundName",
 //						"CN2C(=O)N(C)C(=O)C1=C2N=CN1C"))));
 	}
