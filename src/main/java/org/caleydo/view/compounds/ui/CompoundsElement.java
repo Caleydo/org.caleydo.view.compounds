@@ -30,7 +30,6 @@ import org.openscience.cdk.renderer.AtomContainerRenderer;
 import org.openscience.cdk.renderer.color.IAtomColorer;
 import org.openscience.cdk.renderer.font.AWTFontManager;
 import org.openscience.cdk.renderer.generators.BasicAtomGenerator;
-import org.openscience.cdk.renderer.generators.BasicBondGenerator;
 import org.openscience.cdk.renderer.generators.BasicSceneGenerator;
 import org.openscience.cdk.renderer.generators.IGenerator;
 import org.openscience.cdk.renderer.generators.IGeneratorParameter;
@@ -43,9 +42,9 @@ import com.jogamp.opengl.util.awt.TextureRenderer;
 
 /**
  * element of this view
- * 
+ *
  * @author Hendrik Strobelt
- * 
+ *
  */
 public class CompoundsElement extends GLElement implements IHasMinSize {
 	private static final Logger log = Logger.create(CompoundsElement.class);
@@ -65,34 +64,34 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 	}
 
-	
+
 	public CompoundsElement(String smile, String name, float sizeX, float sizeY) {
 		this(smile, name);
 		setSize(sizeX, sizeY);
 	}
-	
-	
+
+
 	public CompoundsElement(String smile){
 		this(smile,null);
 	}
-	
+
 	private static class IndividualColors implements IAtomColorer {
 
-		private static final java.awt.Color nColor = new java.awt.Color(43,140,190); 
+		private static final java.awt.Color nColor = new java.awt.Color(43,140,190);
 		private static final java.awt.Color oColor = new java.awt.Color(227,74,51);
 		private static final java.awt.Color clColor = new java.awt.Color(116,196,118);
-		
+
 		public IndividualColors() {
 			// TODO Auto-generated constructor stub
 		}
-		
+
 		@Override
 		public java.awt.Color getAtomColor(IAtom atom) {
 			System.out.println(atom.getAtomTypeName());
-			if (atom.getAtomTypeName().startsWith("N.")) return nColor; 
+			if (atom.getAtomTypeName().startsWith("N.")) return nColor;
 			else if (atom.getAtomTypeName().startsWith("O.")) return oColor;
 			else if (atom.getAtomTypeName().startsWith("Cl")) return clColor;
-			
+
 			return java.awt.Color.DARK_GRAY;
 		}
 
@@ -102,19 +101,20 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 			// TODO Auto-generated method stub
 			return getAtomColor(atom);
 		}
-		
+
 	}
-	
+
 	public static class AtomColor extends
     AbstractGeneratorParameter<Color> {
     	/** Returns the default value.
     	 * @return {@link Color}.BLACK */
-        public Color getDefault() {
+        @Override
+		public Color getDefault() {
             return Color.BLACK;
         }
     }
-	
-	
+
+
 	/**
 	 * @param string
 	 */
@@ -130,12 +130,12 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 		generators.add(new RingGenerator());
 		BasicAtomGenerator basicAtomGenerator = new BasicAtomGenerator();
 		((IGeneratorParameter<IAtomColorer>) basicAtomGenerator.getParameters().get(1)).setValue(new IndividualColors());;
-		
+
 		generators.add(basicAtomGenerator);
 		// the renderer needs to have a toolkit-specific font manager
 		renderer = new AtomContainerRenderer(generators, new AWTFontManager());
-		
-				
+
+
 		// when rendering the molecule add a warning, when only the largest
 		// subcomponent is rendered.
 		MoleluleConversionFeedback moleluleConversionFeedback = new MoleluleConversionFeedback();
@@ -227,7 +227,7 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 	@Override
 	public Vec2f getMinSize() {
-		return new Vec2f(300,300);
+		return new Vec2f(300, 165);
 	}
 
 	@Override
@@ -247,9 +247,9 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 		if (this.name!=null){
 			g.drawText(this.name,
-					20, 2, 200, 15);	
+					20, 2, 200, 15);
 		}
-		
+
 		if (subComponentWarning) {
 
 			g.textColor(Color.RED);
@@ -265,7 +265,7 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 	}
 
 	private void renderSmiles(int width, int height) {
-		
+
 
 		// the draw area and the image should be the same size
 		Rectangle drawArea = new Rectangle(width, height);
