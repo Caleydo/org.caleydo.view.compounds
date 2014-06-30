@@ -4,7 +4,8 @@ Bundle-Name: Compounds View
 Bundle-SymbolicName: org.caleydo.view.compounds;singleton:=true
 Bundle-Version: 3.1.4.qualifier
 Require-Bundle: org.caleydo.core;bundle-version="3.1.4.qualifier",
- org.caleydo.thirdparty.cdk;bundle-version="1.5.3"
+ org.caleydo.thirdparty.cdk;bundle-version="1.5.3",
+ org.caleydo.ui;bundle-version="3.1.4.qualifier"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: www.caleydo.org
 Bundle-ActivationPolicy: lazy
