@@ -87,7 +87,7 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 
 		@Override
 		public java.awt.Color getAtomColor(IAtom atom) {
-			System.out.println(atom.getAtomTypeName());
+			// System.out.println(atom.getAtomTypeName());
 			if (atom.getAtomTypeName().startsWith("N.")) return nColor;
 			else if (atom.getAtomTypeName().startsWith("O.")) return oColor;
 			else if (atom.getAtomTypeName().startsWith("Cl")) return clColor;
@@ -174,7 +174,7 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 		try {
 			SmilesParser smilesParser = new SmilesParser(DefaultChemObjectBuilder.getInstance());
 			smilesParser.setPreservingAromaticity(true);
-			System.out.println(smilesParser.isPreservingAromaticity());
+			// System.out.println(smilesParser.isPreservingAromaticity());
 			molecule = smilesParser.parseSmiles(smile);
 
 			StructureDiagramGenerator sdg = new StructureDiagramGenerator();
@@ -215,7 +215,7 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 				}
 			} catch (Exception ex) {
 				log.warn("can't generate coordinates for " + smile, ex);
-				System.out.println("COORD: " + ex);
+				// System.out.println("COORD: " + ex);
 				System.exit(1);
 			}
 			return sdg.getMolecule();
