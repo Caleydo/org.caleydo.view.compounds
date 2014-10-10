@@ -22,8 +22,6 @@ import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
-import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
-import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 
 /**
  * element of this view
@@ -34,34 +32,37 @@ import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 public class MultiCompoundsList extends GLElementContainer implements IHasMinSize {
 	private static final Logger log = Logger.create(MultiCompoundsList.class);
 
+	private static final float MIN_COMPOUND_WIDTH = 200;
+	private static final float MIN_COMPOUND_HEIGHT = 200;
+	private static final float COMPOUND_SPACING = 5;
 
 	protected ScrollingDecorator scrollingDecorator;
 
 	protected ScrollableCompoundsList body;
 
-//	 public MultiCompoundsElement(){
-//
-//	 }
+	// public MultiCompoundsElement(){
+	//
+	// }
 
-	protected class ScrollableCompoundsList extends GLElementContainer{
-		private  List<ComparablePair<String, String>> smilesList;
+	protected class ScrollableCompoundsList extends GLElementContainer {
+		private List<ComparablePair<String, String>> smilesList;
 
 		public ScrollableCompoundsList(final List<ComparablePair<String, String>> smilesList) {
 			super();
 			this.smilesList = smilesList;
-			setLayout(new GLSizeRestrictiveFlowLayout2(false, 5, GLPadding.ZERO));
-			setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this,
-					5, GLPadding.ZERO));
+			setLayout(new UniformSizeMatrixLayout(new Vec2f(MIN_COMPOUND_WIDTH, MIN_COMPOUND_HEIGHT), COMPOUND_SPACING));
+			setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(300, 300));
+			// setLayout(new GLSizeRestrictiveFlowLayout2(false, 5, GLPadding.ZERO));
+			// setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this,
+			// 5, GLPadding.ZERO));
 
 			for (ComparablePair<String, String> smile : this.smilesList) {
-//				add(new CompoundsElement(smile,400,400));
+				// add(new CompoundsElement(smile,400,400));
 				add(new CompoundsElement(smile.getSecond(), smile.getFirst()));
-//				add(new CompoundsElement(smile.getSecond(), smile.getFirst(),300,300));
+				// add(new CompoundsElement(smile.getSecond(), smile.getFirst(),300,300));
 			}
 
 		}
-
-
 
 		@Override
 		public void layout(int deltaTimeMs) {
@@ -88,40 +89,30 @@ public class MultiCompoundsList extends GLElementContainer implements IHasMinSiz
 			}
 		}
 
-		@Override
-		public Vec2f getMinSize() {
-			// TODO Auto-generated method stub
-			// Vec2f minSize = super.getMinSize();
-			// minSize.setX(getSize().x());
-			return super.getMinSize();
-		}
-
-
 	}
 
-
-
-	//List<ComparablePair<String, String>> smiles
+	// List<ComparablePair<String, String>> smiles
 	public MultiCompoundsList(final List<ComparablePair<String, String>> smilesList) {
 		super();
-//		setLayout(new GLSizeRestrictiveFlowLayout2(false, 1, GLPadding.ZERO));
+		// setLayout(new GLSizeRestrictiveFlowLayout2(false, 1, GLPadding.ZERO));
 		setLayout(GLLayouts.LAYERS);
 		setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(this));
 
 		body = new ScrollableCompoundsList(smilesList);
 
+		scrollingDecorator = new ScrollingDecorator(body, new ScrollBar(true), new ScrollBar(false), 8,
+				EDimension.RECORD);
+		scrollingDecorator.setMinSizeProvider(new IHasMinSize() {
+			@Override
+			public Vec2f getMinSize() {
+				float w = scrollingDecorator.getSize().x();
+				int numColumns = (int) Math.max(1,
+						Math.floor((w + COMPOUND_SPACING) / (MIN_COMPOUND_WIDTH + COMPOUND_SPACING)));
+				int numRows = (int) Math.max(1, Math.floor((float) body.size() / (float) numColumns));
 
-		scrollingDecorator = new ScrollingDecorator(body, new ScrollBar(true),
-				new ScrollBar(false), 8, EDimension.RECORD );
-		scrollingDecorator.setMinSizeProvider(
-//				new IHasMinSize() {
-//			@Override
-//			public Vec2f getMinSize() {
-//				final float blobb = smilesList.size()*400;
-//				return new Vec2f(1000,blobb);
-//			}
-//		}
-		body		);
+				return new Vec2f(MIN_COMPOUND_WIDTH, numRows * MIN_COMPOUND_HEIGHT + (numRows - 1 * COMPOUND_SPACING));
+			}
+		});
 
 		add(scrollingDecorator);
 		relayout();
@@ -133,21 +124,15 @@ public class MultiCompoundsList extends GLElementContainer implements IHasMinSiz
 		return super.getMinSize();
 	}
 
-
-	public GLElement asGLElement() {
-		return scrollingDecorator;
-	}
-
-
 	public static void main(String[] args) {
 		// the tough one:
-		ArrayList<ComparablePair<String, String> > list = new ArrayList<ComparablePair<String, String> >();
-		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
-		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
-		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
-		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
-		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
-		list.add(new ComparablePair<String, String>("abc","COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		ArrayList<ComparablePair<String, String>> list = new ArrayList<ComparablePair<String, String>>();
+		list.add(new ComparablePair<String, String>("abc", "COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc", "COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc", "COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc", "COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc", "COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
+		list.add(new ComparablePair<String, String>("abc", "COC1=C(C(=CC=C1)OC)OCCNCC2COC3=CC=CC=C3O2.Cl"));
 
 		GLSandBox.main(args, new MultiCompoundsList(list));
 
