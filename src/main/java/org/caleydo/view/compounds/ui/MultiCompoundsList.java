@@ -108,7 +108,7 @@ public class MultiCompoundsList extends GLElementContainer implements IHasMinSiz
 				float w = scrollingDecorator.getSize().x();
 				int numColumns = (int) Math.max(1,
 						Math.floor((w + COMPOUND_SPACING) / (MIN_COMPOUND_WIDTH + COMPOUND_SPACING)));
-				int numRows = (int) Math.max(1, Math.floor((float) body.size() / (float) numColumns));
+				int numRows = (int) Math.max(1, Math.ceil((float) body.size() / (float) numColumns));
 
 				return new Vec2f(MIN_COMPOUND_WIDTH, numRows * MIN_COMPOUND_HEIGHT + (numRows - 1 * COMPOUND_SPACING));
 			}
