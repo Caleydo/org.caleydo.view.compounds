@@ -14,10 +14,10 @@ import java.util.List;
 
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.logging.Logger;
-import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.GLSandBox;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
+import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
 import org.openscience.cdk.DefaultChemObjectBuilder;
 import org.openscience.cdk.exception.InvalidSmilesException;
@@ -46,7 +46,7 @@ import com.jogamp.opengl.util.awt.TextureRenderer;
  * @author Hendrik Strobelt
  *
  */
-public class CompoundsElement extends GLElement implements IHasMinSize {
+public class CompoundsElement extends PickableGLElement implements IHasMinSize {
 	private static final Logger log = Logger.create(CompoundsElement.class);
 
 	private final String smile;
@@ -287,5 +287,19 @@ public class CompoundsElement extends GLElement implements IHasMinSize {
 		// new CompoundsElement("CN2C(=O)N(C)C(=O)C1=C2N=CN1CCl"));
 		// new CompoundsElement(Lists.newArrayList(Pair.<String, String> make("CompoundName",
 		// "CN2C(=O)N(C)C(=O)C1=C2N=CN1C"))));
+	}
+
+	/**
+	 * @return the name, see {@link #name}
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @return the smile, see {@link #smile}
+	 */
+	public String getSmile() {
+		return smile;
 	}
 }

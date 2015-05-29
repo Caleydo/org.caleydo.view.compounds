@@ -22,6 +22,8 @@ import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
+import org.caleydo.core.view.opengl.picking.APickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
 
 /**
  * element of this view
@@ -58,7 +60,14 @@ public class MultiCompoundsList extends GLElementContainer implements IHasMinSiz
 
 			for (ComparablePair<String, String> smile : this.smilesList) {
 				// add(new CompoundsElement(smile,400,400));
-				add(new CompoundsElement(smile.getSecond(), smile.getFirst()));
+				final CompoundsElement el = new CompoundsElement(smile.getSecond(), smile.getFirst());
+				el.onPick(new APickingListener() {
+					@Override
+					protected void clicked(Pick pick) {
+						System.out.println(el.getName());
+					}
+				});
+				add(el);
 				// add(new CompoundsElement(smile.getSecond(), smile.getFirst(),300,300));
 			}
 
